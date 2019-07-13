@@ -82,6 +82,27 @@ ui <- navbarPage("BABY PREDICTIONS",
 	
 	),
 	
+	tabPanel("Gender", 
+	
+		fluidRow(
+			tags$div(class="title", titlePanel("Predictions for Gender"))
+		),
+	
+		fluidRow(
+			column(10, offset = 1,
+				plotOutput(outputId = "plot_gender")
+			)
+		),	
+	
+		hr(),
+		
+		fluidRow(
+			column(6, offset = 3
+			)
+		)
+	
+	),
+	
 	tags$head(
 				tags$style(
 					"
@@ -144,6 +165,12 @@ server <- function(input, output) {
 		predictions %>% filter(gender != "") %>% ggplot(aes(x = weight_kgs, y = height_cm)) + annotate("rect", xmin = 2.2, xmax = 4.2, ymin = -Inf, ymax = Inf, alpha = 0.1) + annotate("rect", xmin = 2.7, xmax = 3.7, ymin = -Inf, ymax = Inf, alpha = 0.2) + annotate("rect", xmin = -Inf, xmax = Inf, ymin = 44.0, ymax = 54.0, alpha = 0.1) + annotate("rect", xmin = -Inf, xmax = Inf, ymin = 46.5, ymax = 51.5, alpha = 0.2) + geom_vline(xintercept = 3.2, alpha = 0.6) + geom_hline(yintercept = 49.0, alpha = 0.6) + geom_point(aes(fill = gender), shape = 21, size = 3, alpha = 0.8) + scale_x_continuous(limits = c(2.1, 4.3), breaks = c(2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0, 4.25), "\nWeight (Kg)", sec.axis = sec_axis(~ . * 2.2, name = "Weight (lbs)\n", breaks = c(5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9))) + scale_y_continuous(limits = c(25, 60), breaks = c(25, 30, 35, 40, 45, 50, 55, 60), "Height (cm)\n", sec.axis = sec_axis(~ . / 2.54 , name = "Height (in)\n", breaks = c(10, 12.5, 15, 17.5, 20, 22.5))) + scale_fill_manual(values = gender_colors) + annotate("text", x = 4.0, y = 49.50, label = "National Mean ± 1 SD and ± 2 SD", size = 3, family = "Palatino") + annotate("text", x = 3.220, y = 38.6, label = "National Mean ± 1 SD and ± 2 SD", size = 3, family = "Palatino", angle = -90) + labs(fill = "Gender") + theme(axis.title = element_text(size = rel(1.75)), axis.text.x = element_text(size = rel(1.4)), axis.text.y = element_text(size = rel(1.4)), plot.margin = unit(c(0,0.75,0.5,0.75), "cm")) + guides(fill = FALSE) + geom_point(aes(x=3.175, y=51.1175), color="yellow", shape = 21, size = 3) + annotate("text", x = 3.48, y = 35, label = "Yellow Circle\n---------------\nActual Weight =\n(3.175 kg/7.0 lb)\nActual Height =\n(51.1 cm/20.1 in)", size = 5, family = "Palatino", color = "lightyellow1", fontface = 2)
 			
 	})	
+	
+	output$plot_gender <- renderPlot({
+		
+		predictions %>% filter(gender != "") %>% group_by(gender) %>% summarize(n = n()) %>% mutate(proportions = n / sum(n), percent = paste(round((n / sum(n)) * 100, 1), "%", sep = "")) %>% ggplot(aes(x = "", y = proportions, fill = gender)) + geom_bar(stat = "identity", width = 1, color = "white") + coord_polar(theta = "y", start = 0) + scale_fill_manual(labels = c("Boy", "Girl"), values=c("skyblue1", "pink")) + geom_text(aes(label = percent), family = "Palatino", color = "white", size = 10, position = position_stack(vjust = 0.5)) + theme_void() + theme(legend.position = "bottom", legend.text = element_text(size = 20, family = "Palatino"), legend.key.size = unit(2,"line")) + labs(fill = "")
+		
+	})
 
 
 	
