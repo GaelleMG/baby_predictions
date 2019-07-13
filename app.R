@@ -168,7 +168,7 @@ server <- function(input, output) {
 	
 	output$plot_gender <- renderPlot({
 		
-		predictions %>% filter(gender != "") %>% group_by(gender) %>% summarize(n = n()) %>% mutate(proportions = n / sum(n), percent = paste(round((n / sum(n)) * 100, 1), "%", sep = "")) %>% ggplot(aes(x = "", y = proportions, fill = gender)) + geom_bar(stat = "identity", width = 1, color = "white") + coord_polar(theta = "y", start = 0) + scale_fill_manual(labels = c("Boy", "Girl"), values=c("skyblue1", "pink")) + geom_text(aes(label = percent), family = "Palatino", color = "white", size = 10, position = position_stack(vjust = 0.5)) + theme_void() + theme(legend.position = "bottom", legend.text = element_text(size = 20, family = "Palatino"), legend.key.size = unit(2,"line")) + labs(fill = "")
+		predictions %>% filter(gender != "") %>% group_by(gender) %>% summarize(n = n()) %>% mutate(proportions = n / sum(n), percent = paste(round((n / sum(n)) * 100, 1), "%", sep = "")) %>% ggplot(aes(x = "", y = proportions, fill = gender)) + geom_bar(stat = "identity", width = 1, color = "white") + coord_polar(theta = "y", start = 0) + scale_fill_manual(labels = c("Boy", "Girl"), values=c("skyblue1", "pink")) + geom_text(aes(label = percent), family = "Palatino", color = "white", size = 10, position = position_stack(vjust = 0.5)) + theme_void() + theme(legend.position = "bottom", legend.text = element_text(size = 20, family = "Palatino"), legend.key.size = unit(2,"line")) + labs(fill = "") + annotate("text", x = 1.17, y = 0.875, label = "~ Actual ~\nGender", family = "Palatino", color = "white", size = 7, fontface = 2, angle = 45)
 		
 	})
 
