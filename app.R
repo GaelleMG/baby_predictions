@@ -136,10 +136,14 @@ server <- function(input, output) {
 	
 	today <- toString(Sys.Date())
 	tomorrow <- toString(Sys.Date() + 1)
+	
 	lim_time <- " 00:00"
 	min_lim <- paste(today, lim_time)
 	max_lim <- paste(tomorrow, lim_time)
 	lims <- as.POSIXct(strptime(c(min_lim, max_lim), format = "%Y-%m-%d %H:%M"))
+	
+	actual_time <- " 14:35"
+	actual_time_of_birth <- as.POSIXct(strptime(paste(today, actual_time), format = "%Y-%m-%d %H:%M"))
 	
 	gender_colors = c("boy" = "skyblue1", "girl" = "pink")
 
@@ -153,9 +157,9 @@ server <- function(input, output) {
 	
 	output$plot_time <- renderPlot({
 		
-			binwidth <- input$binwidth_time
+		binwidth <- input$binwidth_time
 		
-		predictions %>% ggplot(aes(x = time_of_birth)) + geom_vline(xintercept = as.numeric(predictions$time_of_birth[4]), color = "yellow", size = 6) + geom_histogram(alpha=0.8, fill = "white", color = "black", bins = (24/binwidth)) + geom_density(aes(y=..scaled..), color = "yellow", fill = "yellow", alpha = 0.6) + scale_x_datetime(date_label = "%H:%M", limits = lims, date_breaks = "3 hours", expand = c(0,0)) + labs(x = "\nTime of Birth (24h)", y = "Number of Predictions\n") + theme(axis.title = element_text(size = rel(1.75)), axis.text.x = element_text(size = rel(1.4)), plot.margin = unit(c(0,0.75,0,0.75), "cm")) + geom_vline(xintercept = as.numeric(predictions$time_of_birth[4]), color = "yellow", size = 6, alpha = 0.8) + annotate("text", x = predictions$time_of_birth[4], y = 2.5, label = "Actual Birth Time (14h35)", size = 5, family = "Palatino", angle = -90)
+		predictions %>% ggplot(aes(x = time_of_birth)) + geom_vline(xintercept = as.numeric(actual_time_of_birth), color = "yellow", size = 6) + geom_histogram(alpha=0.8, fill = "white", color = "black", bins = (24/binwidth)) + geom_density(aes(y=..scaled..), color = "yellow", fill = "yellow", alpha = 0.6) + scale_x_datetime(date_label = "%H:%M", limits = lims, date_breaks = "3 hours", expand = c(0,0)) + labs(x = "\nTime of Birth (24h)", y = "Number of Predictions\n") + theme(axis.title = element_text(size = rel(1.75)), axis.text.x = element_text(size = rel(1.4)), plot.margin = unit(c(0,0.75,0,0.75), "cm")) + geom_vline(xintercept = as.numeric(actual_time_of_birth), color = "yellow", size = 6, alpha = 0.8) + annotate("text", x = actual_time_of_birth, y = 3.1, label = "Actual Birth Time (14h35)", size = 4.5, family = "Palatino", angle = -90)
 			
 	})	
 	 
