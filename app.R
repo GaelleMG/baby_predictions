@@ -165,7 +165,17 @@ server <- function(input, output) {
 		
 		binwidth <- input$binwidth_date
 		
-		predictions %>% ggplot(aes(x = date_of_birth)) + geom_vline(xintercept = as.numeric(predictions$date_of_birth[1]), color = "yellow", size = 6) + geom_vline(xintercept = as.numeric(predictions$date_of_birth[4]), color = "lightgreen", size = 6) + geom_bar(alpha=0.8, fill = "white", color = "black", binwidth = binwidth) + geom_density(aes(y=..scaled..), color = "darkgrey", fill = "yellow", alpha = 0.6) + scale_x_date(date_labels="%b %d",date_breaks  ="2 days", expand = c(0.05,0.05)) + labs(x = "\nDate of Birth", y = "Number of Predictions\n") + annotate("text", x = predictions$date_of_birth[1], y = 4, label = "Actual Birth Date (June 24)", size = 5, family = "Palatino", angle = -90) + annotate("text", x = predictions$date_of_birth[4], y = 5, label = "Due Date", size = 5, family = "Palatino", angle = -90) + theme(axis.title = element_text(size = rel(1.75)), axis.text.x = element_text(size = rel(1.4)), plot.margin = unit(c(0,0.75,0,0.75), "cm")) + if(!is.null(input$predictor_name_date) && input$predictor_name_date != "") {
+		predictions %>% ggplot(aes(x = date_of_birth)) +
+		geom_vline(xintercept = as.numeric(predictions$date_of_birth[1]), color = "yellow", size = 6) + 
+		geom_vline(xintercept = as.numeric(predictions$date_of_birth[4]), color = "lightgreen", size = 6) +
+		geom_bar(alpha=0.8, fill = "white", color = "black", binwidth = binwidth) +
+		geom_density(aes(y=..scaled..), color = "darkgrey", fill = "yellow", alpha = 0.6) +
+		scale_x_date(date_labels="%b %d",date_breaks  ="2 days", expand = c(0.05,0.05)) +
+		labs(x = "\nDate of Birth", y = "Number of Predictions\n") +
+		annotate("text", x = predictions$date_of_birth[1], y = 4, label = "Actual Birth Date (June 24)", size = 5, family = "Palatino", angle = -90) +
+		annotate("text", x = predictions$date_of_birth[4], y = 5, label = "Due Date", size = 5, family = "Palatino", angle = -90) +
+		theme(axis.title = element_text(size = rel(1.75)), axis.text.x = element_text(size = rel(1.4)), plot.margin = unit(c(0,0.75,0,0.75), "cm")) + 
+		if(!is.null(input$predictor_name_date) && input$predictor_name_date != "") {
 			p <- input$predictor_name_date
 			predictor_filter <- dplyr::filter(predictions, grepl(p, predictor, ignore.case = TRUE))
 			if(dim(predictor_filter) == 1) {
@@ -177,20 +187,52 @@ server <- function(input, output) {
 		
 		binwidth <- input$binwidth_time
 		
-		predictions %>% ggplot(aes(x = time_of_birth)) + geom_vline(xintercept = as.numeric(actual_time_of_birth), color = "yellow", size = 6) + geom_histogram(alpha=0.8, fill = "white", color = "black", bins = (24/binwidth)) + geom_density(aes(y=..scaled..), color = "yellow", fill = "yellow", alpha = 0.6) + scale_x_datetime(date_label = "%H:%M", limits = lims, date_breaks = "3 hours", expand = c(0,0)) + labs(x = "\nTime of Birth (24h)", y = "Number of Predictions\n") + theme(axis.title = element_text(size = rel(1.75)), axis.text.x = element_text(size = rel(1.4)), plot.margin = unit(c(0,0.75,0,0.75), "cm")) + geom_vline(xintercept = as.numeric(actual_time_of_birth), color = "yellow", size = 6, alpha = 0.8) + annotate("text", x = actual_time_of_birth, y = 3.1, label = "Actual Birth Time (14h35)", size = 4.5, family = "Palatino", angle = -90)
+		predictions %>% ggplot(aes(x = time_of_birth)) +
+		geom_vline(xintercept = as.numeric(actual_time_of_birth), color = "yellow", size = 6) +
+		geom_histogram(alpha=0.8, fill = "white", color = "black", bins = (24/binwidth)) +
+		geom_density(aes(y=..scaled..), color = "yellow", fill = "yellow", alpha = 0.6) +
+		scale_x_datetime(date_label = "%H:%M", limits = lims, date_breaks = "3 hours", expand = c(0,0)) +
+		labs(x = "\nTime of Birth (24h)", y = "Number of Predictions\n") +
+		theme(axis.title = element_text(size = rel(1.75)), axis.text.x = element_text(size = rel(1.4)), plot.margin = unit(c(0,0.75,0,0.75), "cm")) +
+		geom_vline(xintercept = as.numeric(actual_time_of_birth), color = "yellow", size = 6, alpha = 0.8) +
+		annotate("text", x = actual_time_of_birth, y = 3.1, label = "Actual Birth Time (14h35)", size = 4.5, family = "Palatino", angle = -90)
 			
 	})	
 	 
 	
 	output$plot_weight_height <- renderPlot({
 		
-		predictions %>% filter(gender != "") %>% ggplot(aes(x = weight_kgs, y = height_cm)) + annotate("rect", xmin = 2.2, xmax = 4.2, ymin = -Inf, ymax = Inf, alpha = 0.1) + annotate("rect", xmin = 2.7, xmax = 3.7, ymin = -Inf, ymax = Inf, alpha = 0.2) + annotate("rect", xmin = -Inf, xmax = Inf, ymin = 44.0, ymax = 54.0, alpha = 0.1) + annotate("rect", xmin = -Inf, xmax = Inf, ymin = 46.5, ymax = 51.5, alpha = 0.2) + geom_vline(xintercept = 3.2, alpha = 0.6) + geom_hline(yintercept = 49.0, alpha = 0.6) + geom_point(aes(fill = gender), shape = 21, size = 3, alpha = 0.8) + scale_x_continuous(limits = c(2.1, 4.3), breaks = c(2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0, 4.25), "\nWeight (Kg)", sec.axis = sec_axis(~ . * 2.2, name = "Weight (lbs)\n", breaks = c(5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9))) + scale_y_continuous(limits = c(25, 60), breaks = c(25, 30, 35, 40, 45, 50, 55, 60), "Height (cm)\n", sec.axis = sec_axis(~ . / 2.54 , name = "Height (in)\n", breaks = c(10, 12.5, 15, 17.5, 20, 22.5))) + scale_fill_manual(values = gender_colors) + annotate("text", x = 4.0, y = 49.10, label = "National Mean\n± 1 SD (dark grey shading) and ± 2 SD (light grey shading)", size = 3, family = "Palatino") + annotate("text", x = 3.185, y = 38.6, label = "National Mean\n± 1 SD (dark grey shading)\n± 2 SD (light grey shading)", size = 3, family = "Palatino", angle = -90) + labs(fill = "Gender") + theme(axis.title = element_text(size = rel(1.75)), axis.text.x = element_text(size = rel(1.4)), axis.text.y = element_text(size = rel(1.4)), plot.margin = unit(c(0,0.75,0.5,0.75), "cm")) + guides(fill = FALSE) + geom_point(aes(x=3.175, y=51.1175), color="yellow", shape = 21, size = 3) + annotate("text", x = 3.48, y = 35, label = "Yellow Circle\n---------------\nActual Weight =\n(3.175 kg/7.0 lb)\nActual Height =\n(51.1 cm/20.1 in)", size = 5, family = "Palatino", color = "lightyellow1", fontface = 2) + geom_point(predictor_id(), mapping = aes(fill = gender), shape = 21, size = 3, stroke = 2, alpha = 0.7, color = "black")
+		predictions %>% filter(gender != "") %>% ggplot(aes(x = weight_kgs, y = height_cm)) +
+		annotate("rect", xmin = 2.2, xmax = 4.2, ymin = -Inf, ymax = Inf, alpha = 0.1) +
+		annotate("rect", xmin = 2.7, xmax = 3.7, ymin = -Inf, ymax = Inf, alpha = 0.2) +
+		annotate("rect", xmin = -Inf, xmax = Inf, ymin = 44.0, ymax = 54.0, alpha = 0.1) +
+		annotate("rect", xmin = -Inf, xmax = Inf, ymin = 46.5, ymax = 51.5, alpha = 0.2) +
+		geom_vline(xintercept = 3.2, alpha = 0.6) +
+		geom_hline(yintercept = 49.0, alpha = 0.6) +
+		geom_point(aes(fill = gender), shape = 21, size = 3, alpha = 0.8) +
+		scale_x_continuous(limits = c(2.1, 4.3), breaks = c(2.25, 2.5, 2.75, 3.0, 3.25, 3.5, 3.75, 4.0, 4.25), "\nWeight (Kg)", sec.axis = sec_axis(~ . * 2.2, name = "Weight (lbs)\n", breaks = c(5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5, 9))) +
+		scale_y_continuous(limits = c(25, 60), breaks = c(25, 30, 35, 40, 45, 50, 55, 60), "Height (cm)\n", sec.axis = sec_axis(~ . / 2.54 , name = "Height (in)\n", breaks = c(10, 12.5, 15, 17.5, 20, 22.5))) +
+		scale_fill_manual(values = gender_colors) +
+		annotate("text", x = 4.0, y = 49.10, label = "National Mean\n± 1 SD (dark grey shading) and ± 2 SD (light grey shading)", size = 3, family = "Palatino") +
+		annotate("text", x = 3.185, y = 38.6, label = "National Mean\n± 1 SD (dark grey shading)\n± 2 SD (light grey shading)", size = 3, family = "Palatino", angle = -90) +
+		labs(fill = "Gender") + theme(axis.title = element_text(size = rel(1.75)), axis.text.x = element_text(size = rel(1.4)), axis.text.y = element_text(size = rel(1.4)), plot.margin = unit(c(0,0.75,0.5,0.75), "cm")) +
+		guides(fill = FALSE) +
+		geom_point(aes(x=3.175, y=51.1175), color="yellow", shape = 21, size = 3) +
+		annotate("text", x = 3.48, y = 35, label = "Yellow Circle\n---------------\nActual Weight =\n(3.175 kg/7.0 lb)\nActual Height =\n(51.1 cm/20.1 in)", size = 5, family = "Palatino", color = "lightyellow1", fontface = 2) +
+		geom_point(predictor_id(), mapping = aes(fill = gender), shape = 21, size = 3, stroke = 2, alpha = 0.7, color = "black")
 			
 	})	
 	
 	output$plot_gender <- renderPlot({
 		
-		predictions %>% filter(gender != "") %>% group_by(gender) %>% summarize(n = n()) %>% mutate(proportions = n / sum(n), percent = paste(round((n / sum(n)) * 100, 1), "%", sep = "")) %>% ggplot(aes(x = "", y = proportions, fill = gender)) + geom_bar(stat = "identity", width = 1, color = "white") + coord_polar(theta = "y", start = 0) + scale_fill_manual(labels = c("Boy", "Girl"), values=c("skyblue1", "pink")) + geom_text(aes(label = percent), family = "Palatino", color = "white", size = 10, position = position_stack(vjust = 0.5)) + theme_void() + theme(legend.position = "bottom", legend.text = element_text(size = 20, family = "Palatino"), legend.key.size = unit(2,"line")) + labs(fill = "") + annotate("text", x = 1.17, y = 0.875, label = "~ Actual ~\nGender", family = "Palatino", color = "white", size = 7, fontface = 2, angle = 45)
+		predictions %>% filter(gender != "") %>% group_by(gender) %>% summarize(n = n()) %>% mutate(proportions = n / sum(n), percent = paste(round((n / sum(n)) * 100, 1), "%", sep = "")) %>% ggplot(aes(x = "", y = proportions, fill = gender)) +
+		geom_bar(stat = "identity", width = 1, color = "white") +
+		coord_polar(theta = "y", start = 0) +
+		scale_fill_manual(labels = c("Boy", "Girl"), values=c("skyblue1", "pink")) +
+		geom_text(aes(label = percent), family = "Palatino", color = "white", size = 10, position = position_stack(vjust = 0.5)) +
+		theme_void() +
+		theme(legend.position = "bottom", legend.text = element_text(size = 20, family = "Palatino"), legend.key.size = unit(2,"line")) + labs(fill = "") +
+		annotate("text", x = 1.17, y = 0.875, label = "~ Actual ~\nGender", family = "Palatino", color = "white", size = 7, fontface = 2, angle = 45)
 		
 	})
 
