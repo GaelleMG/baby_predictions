@@ -22,7 +22,10 @@ ui <- navbarPage("BABY PREDICTIONS",
 		hr(),
 	
 		fluidRow(
-			column(6, offset = 3,
+			column(4, offset = 1,
+				textInput("predictor_name_date", "Name of Predictor Contains (portion of either first or last name):", width = "100%")
+			),
+			column(4, offset = 1,
 				sliderInput(inputId = "binwidth_date",
 				width = "100%",
 				label = "Number of days to group predictions by:",
@@ -58,7 +61,6 @@ ui <- navbarPage("BABY PREDICTIONS",
 				)
 			)
 		)
-	
 	),
 	
 	tabPanel("Weight & Height", 
@@ -149,20 +151,25 @@ server <- function(input, output) {
 	gender_colors = c("boy" = "skyblue1", "girl" = "pink")
 	
 	predictor_id <- reactive({
-		predictor_filter <- predictions %>% filter(predictor == "")
-		if(!is.null(input$predictor_name) && input$predictor_name != "") {
-			p <- input$predictor_name
-			predictor_filter <- dplyr::filter(predictions, grepl(p, predictor, ignore.case = TRUE))
-		}
-		predictor_filter
-	})
+			predictor_filter <- predictions %>% filter(predictor == "")
+			if(!is.null(input$predictor_name) && input$predictor_name != "") {
+				p <- input$predictor_name
+				predictor_filter <- dplyr::filter(predictions, grepl(p, predictor, ignore.case = TRUE))
+			}
+			predictor_filter
+		})
+
 
 
 	output$plot_date <- renderPlot({
 		
 		binwidth <- input$binwidth_date
 		
-		predictions %>% ggplot(aes(x = date_of_birth)) + geom_vline(xintercept = as.numeric(predictions$date_of_birth[1]), color = "yellow", size = 6) + geom_vline(xintercept = as.numeric(predictions$date_of_birth[4]), color = "lightgreen", size = 6) + geom_bar(alpha=0.8, fill = "white", color = "black", binwidth = binwidth) + geom_density(aes(y=..scaled..), color = "darkgrey", fill = "yellow", alpha = 0.6) + scale_x_date(date_labels="%b %d",date_breaks  ="2 days", expand = c(0.05,0.05)) + labs(x = "\nDate of Birth", y = "Number of Predictions\n") + annotate("text", x = predictions$date_of_birth[1], y = 4, label = "Actual Birth Date (June 24)", size = 5, family = "Palatino", angle = -90) + annotate("text", x = predictions$date_of_birth[4], y = 5, label = "Due Date", size = 5, family = "Palatino", angle = -90) + theme(axis.title = element_text(size = rel(1.75)), axis.text.x = element_text(size = rel(1.4)), plot.margin = unit(c(0,0.75,0,0.75), "cm"))
+		predictions %>% ggplot(aes(x = date_of_birth)) + geom_vline(xintercept = as.numeric(predictions$date_of_birth[1]), color = "yellow", size = 6) + geom_vline(xintercept = as.numeric(predictions$date_of_birth[4]), color = "lightgreen", size = 6) + geom_bar(alpha=0.8, fill = "white", color = "black", binwidth = binwidth) + geom_density(aes(y=..scaled..), color = "darkgrey", fill = "yellow", alpha = 0.6) + scale_x_date(date_labels="%b %d",date_breaks  ="2 days", expand = c(0.05,0.05)) + labs(x = "\nDate of Birth", y = "Number of Predictions\n") + annotate("text", x = predictions$date_of_birth[1], y = 4, label = "Actual Birth Date (June 24)", size = 5, family = "Palatino", angle = -90) + annotate("text", x = predictions$date_of_birth[4], y = 5, label = "Due Date", size = 5, family = "Palatino", angle = -90) + theme(axis.title = element_text(size = rel(1.75)), axis.text.x = element_text(size = rel(1.4)), plot.margin = unit(c(0,0.75,0,0.75), "cm")) + if(!is.null(input$predictor_name_date) && input$predictor_name_date != "") {
+			p <- input$predictor_name_date
+			predictor_filter <- dplyr::filter(predictions, grepl(p, predictor, ignore.case = TRUE))
+			if(dim(predictor_filter) == 1) {
+			geom_point(predictor_filter, mapping = aes(x = predictor_filter$date_of_birth, y = 0.5), color = "red", size = 6)}}
 			
 	})	
 	
