@@ -52,7 +52,10 @@ ui <- navbarPage("BABY PREDICTIONS",
 		hr(),
 		
 		fluidRow(
-			column(6, offset = 3,
+			column(4, offset = 1,
+				textInput("predictor_name_time", "Name of Predictor Contains (portion of either first or last name):", width = "100%")
+			),
+			column(4, offset = 1,
 				shinyWidgets::sliderTextInput(inputId = "binwidth_time", 
   					label = "Number of hours to group predictions by:", 
   					choices = c(1, 2, 3, 6, 12),
@@ -100,7 +103,8 @@ ui <- navbarPage("BABY PREDICTIONS",
 		hr(),
 		
 		fluidRow(
-			column(6, offset = 3
+			column(4, offset = 4,
+				textInput("predictor_name_gender", "Name of Predictor Contains (portion of either first or last name):", width = "100%")
 			)
 		)
 	
@@ -195,7 +199,12 @@ server <- function(input, output) {
 		labs(x = "\nTime of Birth (24h)", y = "Number of Predictions\n") +
 		theme(axis.title = element_text(size = rel(1.75)), axis.text.x = element_text(size = rel(1.4)), plot.margin = unit(c(0,0.75,0,0.75), "cm")) +
 		geom_vline(xintercept = as.numeric(actual_time_of_birth), color = "yellow", size = 6, alpha = 0.8) +
-		annotate("text", x = actual_time_of_birth, y = 3.1, label = "Actual Birth Time (14h35)", size = 4.5, family = "Palatino", angle = -90)
+		annotate("text", x = actual_time_of_birth, y = 3.1, label = "Actual Birth Time (14h35)", size = 4.5, family = "Palatino", angle = -90) +
+		if(!is.null(input$predictor_name_time) && input$predictor_name_time != "") {
+			p <- input$predictor_name_time
+			predictor_filter <- dplyr::filter(predictions, grepl(p, predictor, ignore.case = TRUE))
+			if(dim(predictor_filter) == 1) {
+			geom_point(predictor_filter, mapping = aes(x = predictor_filter$time_of_birth, y = 0.5), color = "red", size = 6)}}
 			
 	})	
 	 
@@ -232,7 +241,20 @@ server <- function(input, output) {
 		geom_text(aes(label = percent), family = "Palatino", color = "white", size = 10, position = position_stack(vjust = 0.5)) +
 		theme_void() +
 		theme(legend.position = "bottom", legend.text = element_text(size = 20, family = "Palatino"), legend.key.size = unit(2,"line")) + labs(fill = "") +
-		annotate("text", x = 1.17, y = 0.875, label = "~ Actual ~\nGender", family = "Palatino", color = "white", size = 7, fontface = 2, angle = 45)
+		annotate("text", x = 1.17, y = 0.875, label = "~ Actual ~\nGender", family = "Palatino", color = "white", size = 7, fontface = 2, angle = 45) +
+		if(!is.null(input$predictor_name_gender) && input$predictor_name_gender != "") {
+			p <- input$predictor_name_gender
+			predictor_filter <- dplyr::filter(predictions, grepl(p, predictor, ignore.case = TRUE))
+			if(dim(predictor_filter) == 1) {
+				if(predictor_filter$gender[1] == 'boy') {
+					annotate("text", x = 1.25, y = 0.6, label = "*", color = "yellow", size = 30)
+				}
+				else if(predictor_filter$gender[1] == 'girl') {
+					annotate("text", x = 1.25, y = 0.4, label = "*", color = "yellow", size = 30)
+				}
+			}
+		}
+		
 		
 	})
 
