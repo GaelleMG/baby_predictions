@@ -182,7 +182,7 @@ server <- function(input, output) {
 		if(!is.null(input$predictor_name_date) && input$predictor_name_date != "") {
 			p <- input$predictor_name_date
 			predictor_filter <- dplyr::filter(predictions, grepl(p, predictor, ignore.case = TRUE))
-			if(dim(predictor_filter) == 1) {
+			if(dim(predictor_filter) >= 1) {
 			geom_point(predictor_filter, mapping = aes(x = predictor_filter$date_of_birth, y = 0.5), color = "red", size = 6)}}
 			
 	})	
@@ -203,7 +203,7 @@ server <- function(input, output) {
 		if(!is.null(input$predictor_name_time) && input$predictor_name_time != "") {
 			p <- input$predictor_name_time
 			predictor_filter <- dplyr::filter(predictions, grepl(p, predictor, ignore.case = TRUE))
-			if(dim(predictor_filter) == 1) {
+			if(dim(predictor_filter) >= 1) {
 			geom_point(predictor_filter, mapping = aes(x = predictor_filter$time_of_birth, y = 0.5), color = "red", size = 6)}}
 			
 	})	
